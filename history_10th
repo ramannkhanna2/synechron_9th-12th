@@ -1,0 +1,163 @@
+```
+
+Welcome to OpenDev Etherpad!
+
+
+my name is raman khanna
+
+
+
+--- create a vm i.e from where ill b controllong terraform
+
+
+installing terraform :
+    
+sudo -i
+
+
+
+
+
+--
+
+
+root@terraform-central-machine:~# terraform -v
+Terraform v1.10.1
+on linux_amd64
+
+=====================================================
+
+
+--- creating a service account ....
+
+      --- given a role to it : editor
+      
+      
+      -- after creating sa , create a json key ....
+      
+    
+      ======================================================
+      
+      
+      11  cd /root/
+   12  ls
+   13  ls
+   14  vi raman.json
+   15  ls
+   16  ls
+   17  cat file1.tf 
+   18  pwd
+   19  ls
+   20  ls
+   21  vi file1.tf 
+   22  clear
+   23  ls
+   24  ls
+   25  ls
+   26  vi file1.tf 
+   27  ls
+   28  ls
+   29  ls -a
+   30  t init
+   31  alias t=terraform
+   32  t init
+   33  ls
+   34  ls -a
+   35  cd .terraform
+   36  ls
+   37  cd providers/
+   38  ls
+   39  cd registry.terraform.io/
+   40  ls
+   41  cd hashicorp/
+   42  ls
+   43  cd google/
+   44  ls
+   45  cd 6.12.0/
+   46  ls
+   47  cd linux_amd64/
+   48  ls
+   49  ls
+   50  cd terraform-provider-google_v6.12.0_x5
+   51  ls
+   52  ls -ltr
+   53  clear
+   54  cd ~
+   55  ls
+   56  t validate
+   57  t plan
+   58  clear
+   59  t apply
+   60  t state list
+   61  ls
+   62  vi terraform.tfstate 
+   63  t plan
+   64  t apply
+   65  ls
+   66  t destroy
+   67  t state list
+   68  ls
+   69  cat terraform.tfstate
+   
+
+
+
+
+
+root@terraform-central-machine:~# cat file1.tf 
+provider "google" {
+  project     = "techlanders-nov2024"
+  region      = "us-central1"
+  credentials= file("/root/raman.json")
+}
+
+resource "google_compute_instance" "mygcpserver" {
+  name         = "raman-gcp-instance-test"
+  machine_type = "f1-micro"
+  zone         = "us-central1-a"
+  boot_disk {
+   initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP will be assigned
+    }
+  }
+  tags = ["my-gcp-instance"]
+}
+
+
+
+
+
+
+
+
+
+===================================================
+   
+   
+   
+   
+   root@terraform-central-machine:~# cat ec2.tf 
+provider "aws" {
+  region = "us-east-1" # Replace with your desired AWS region
+  access_key = ""
+  secret_key = ""
+}
+
+resource "aws_instance" "example" {
+  ami           = "ami-0e2c8caa4b6378d8c"
+  instance_type = "t2.micro"             # Free-tier eligible instance type
+
+  tags = {
+    Name = "my-ec2-instance"
+  }
+}
+
+
+============================================================
+```
