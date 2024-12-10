@@ -1,0 +1,677 @@
+```
+Welcome to OpenDev Etherpad!
+
+
+my name is raman khanna
+
+
+
+--- create a vm i.e from where ill b controllong terraform
+
+
+installing terraform :
+    
+sudo -i
+
+
+
+
+
+--
+
+
+root@terraform-central-machine:~# terraform -v
+Terraform v1.10.1
+on linux_amd64
+
+=====================================================
+
+
+--- creating a service account ....
+
+      --- given a role to it : editor
+      
+      
+      -- after creating sa , create a json key ....
+      
+    
+      ======================================================
+      
+      
+      11  cd /root/
+   12  ls
+   13  ls
+   14  vi raman.json
+   15  ls
+   16  ls
+   17  cat file1.tf 
+   18  pwd
+   19  ls
+   20  ls
+   21  vi file1.tf 
+   22  clear
+   23  ls
+   24  ls
+   25  ls
+   26  vi file1.tf 
+   27  ls
+   28  ls
+   29  ls -a
+   30  t init
+   31  alias t=terraform
+   32  t init
+   33  ls
+   34  ls -a
+   35  cd .terraform
+   36  ls
+   37  cd providers/
+   38  ls
+   39  cd registry.terraform.io/
+   40  ls
+   41  cd hashicorp/
+   42  ls
+   43  cd google/
+   44  ls
+   45  cd 6.12.0/
+   46  ls
+   47  cd linux_amd64/
+   48  ls
+   49  ls
+   50  cd terraform-provider-google_v6.12.0_x5
+   51  ls
+   52  ls -ltr
+   53  clear
+   54  cd ~
+   55  ls
+   56  t validate
+   57  t plan
+   58  clear
+   59  t apply
+   60  t state list
+   61  ls
+   62  vi terraform.tfstate 
+   63  t plan
+   64  t apply
+   65  ls
+   66  t destroy
+   67  t state list
+   68  ls
+   69  cat terraform.tfstate
+   
+
+
+
+
+
+root@terraform-central-machine:~# cat file1.tf 
+provider "google" {
+  project     = "techlanders-nov2024"
+  region      = "us-central1"
+  credentials= file("/root/raman.json")
+}
+
+resource "google_compute_instance" "mygcpserver" {
+  name         = "raman-gcp-instance-test"
+  machine_type = "f1-micro"
+  zone         = "us-central1-a"
+  boot_disk {
+   initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP will be assigned
+    }
+  }
+  tags = ["my-gcp-instance"]
+}
+
+
+
+
+
+
+
+
+
+===================================================
+   
+   
+   
+   
+   root@terraform-central-machine:~# cat ec2.tf 
+provider "aws" {
+  region = "us-east-1" # Replace with your desired AWS region
+  access_key = ""
+  secret_key = ""
+}
+
+resource "aws_instance" "example" {
+  ami           = "ami-0e2c8caa4b6378d8c"
+  instance_type = "t2.micro"             # Free-tier eligible instance type
+
+  tags = {
+    Name = "my-ec2-instance"
+  }
+}
+
+
+============================================================
+
+
+root@terraform-central-machine:~# cat file.tf 
+provider "google" {
+  project     = "techlanders-nov2024"
+  region      = "us-central1"
+  version="5.44.0"
+  credentials= file("/root/raman.json")
+}
+
+resource "google_compute_instance" "mygcpserver" {
+  name         = "raman-gcp-instance-test"
+  machine_type = "f1-micro"
+  zone         = "us-central1-a"
+  boot_disk {
+   initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP will be assigned
+    }
+  }
+  tags = ["my-gcp-instance"]
+}
+
+
+
+
+=================================================================
+
+
+
+root@terraform-central-machine:~# cat file.tf 
+provider "google" {
+  project     = "techlanders-nov2024"
+  region      = "us-central1"
+#  version="5.44.0"
+  credentials= file("/root/raman.json")
+}
+
+resource "google_compute_instance" "rk" {
+  name         = "raman-gcp-instance-test"
+  machine_type = "f1-micro"
+  zone         = "us-central1-a"
+  boot_disk {
+   initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP will be assigned
+    }
+  }
+  tags = ["my-gcp-instance"]
+}
+
+
+output "mygcpserver-ip" {
+  value = google_compute_instance.rk.network_interface[0].access_config[0].nat_ip
+}
+
+output "mygcpserver-type" {
+  value = google_compute_instance.rk.machine_type
+}
+
+
+resource "google_storage_bucket" "mygcpbucket" {
+  name     = "my-gcp-bucket-ramnnnnnnn"
+  depends_on = [google_compute_instance.rk]
+  location = "us-central1"
+}
+
+output "mygcpbucket" {
+  value = google_storage_bucket.mygcpbucket.self_link
+}
+
+
+================================================================
+
+BELOW IS JUST FOR UNDERSTANDING : MODIFY IT TO GET IT WORK AS PER UR ARCHITECTURE :
+    
+    
+    Here’s an end-to-end example of using API Gateway to process an HTTP request and route it to a backend service. This example demonstrates:
+Defining an API Gateway.
+Configuring an HTTP API with a backend Lambda function.
+Triggering the Lambda function with an HTTP request via API Gateway.
+We'll use AWS API Gateway, AWS Lambda, and Python for the Lambda function.
+Step 1: Create an API Gateway
+Terraform Configuration for API Gateway:
+hcl
+Copy code
+provider "aws" {
+  region = "us-east-1"
+}
+
+# Create an API Gateway
+resource "aws_apigatewayv2_api" "example_api" {
+  name          = "example-api"
+  protocol_type = "HTTP"
+}
+
+# Create an API Gateway route
+resource "aws_apigatewayv2_route" "example_route" {
+  api_id    = aws_apigatewayv2_api.example_api.id
+  route_key = "GET /process"
+  target    = "integrations/${aws_apigatewayv2_integration.example_integration.id}"
+}
+Step 2: Create a Lambda Function
+Python Script for Lambda Function:
+python
+Copy code
+import json
+def lambda_handler(event, context):
+    # Extracting parameters from the API Gateway event
+    message = event.get("queryStringParameters", {}).get("message", "Hello, World!")
+    response = {
+        "statusCode": 200,
+        "body": json.dumps({"message": f"Processed: {message}"})
+    }
+    return response
+Terraform Configuration for Lambda:
+hcl
+Copy code
+resource "aws_lambda_function" "example_lambda" {
+  function_name = "example-lambda"
+  runtime       = "python3.9"
+  handler       = "lambda_function.lambda_handler"
+  role          = aws_iam_role.lambda_exec_role.arn
+
+  filename      = "example_lambda.zip" # Package the Python script as a zip
+  source_code_hash = filebase64sha256("example_lambda.zip")
+}
+
+# IAM Role for Lambda
+resource "aws_iam_role" "lambda_exec_role" {
+  name = "lambda-exec-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+# IAM Policy for Lambda to access logs
+resource "aws_iam_role_policy_attachment" "lambda_policy" {
+  role       = aws_iam_role.lambda_exec_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+Step 3: Connect Lambda to API Gateway
+Integration Configuration:
+hcl
+Copy code
+resource "aws_apigatewayv2_integration" "example_integration" {
+  api_id           = aws_apigatewayv2_api.example_api.id
+  integration_type = "AWS_PROXY"
+  integration_uri  = aws_lambda_function.example_lambda.invoke_arn
+}
+Grant API Gateway Permission to Invoke Lambda:
+hcl
+Copy code
+resource "aws_lambda_permission" "apigw_invoke" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.example_lambda.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.example_api.execution_arn}/*/*"
+}
+Step 4: Deploy API Gateway
+Stage Deployment:
+hcl
+Copy code
+resource "aws_apigatewayv2_stage" "example_stage" {
+  api_id      = aws_apigatewayv2_api.example_api.id
+  name        = "$default"
+  auto_deploy = true
+}
+Step 5: Trigger and Test
+Deploy and Apply Terraform:
+bash
+Copy code
+terraform init
+terraform apply
+Test the API Gateway:
+Obtain the API Gateway URL (output or console).
+Use curl or Postman to trigger the endpoint:
+bash
+Copy code
+curl "https://<api-gateway-id>.execute-api.us-east-1.amazonaws.com/process?message=Terraform"
+Response:
+json
+Copy code
+{
+  "message": "Processed: Terraform"}
+Architecture Overview
+API Gateway handles incoming HTTP requests.
+The Route maps GET /process to a Lambda function.
+The Lambda Function processes the request and sends a response.
+API Gateway sends the response back to the client.
+Let me know if you'd like additional details on deployment, security, or logging!
+
+4o
+
+
+ABOVE  IS JUST FOR UNDERSTANDING : MODIFY IT TO GET IT WORK AS PER UR ARCHITECTURE :
+
+================================================================================================
+
+
+
+Variables :
+    
+
+
+root@terraform-central-machine:~# cat variable.tf 
+variable "rktest" {
+  default = "116.50.30.70/32"
+}
+root@terraform-central-machine:~# cat ec2.tf 
+provider "aws" {
+  region = "us-east-1" # Replace with your desired AWS region
+  access_key = ""
+  secret_key = ""
+}
+
+resource "aws_security_group" "var_demo" {
+  name        = "raman-variables"
+  vpc_id      = "vpc-01948378f1e13345b"
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [var.rktest]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [var.rktest]
+  }
+
+  ingress {
+    from_port   = 53
+    to_port     = 53
+    protocol    = "tcp"
+    cidr_blocks = [var.rktest]
+  }
+}
+
+
+========================================================
+
+
+
+root@terraform-central-machine:~# cat compute.tf 
+provider "google" {
+  project     = "techlanders-nov2024"
+  region      = "us-central1"
+#  version="5.44.0"
+  credentials= file("/root/raman.json")
+}
+
+
+resource "google_compute_instance" "mygcpserver" {
+  name         = "techlanders-gcp-instance"
+  machine_type = var.type
+  zone         = "us-central1-a"
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP will be assigned
+    }
+  }
+  tags = ["my-gcp-instance"]
+}
+
+resource "google_compute_firewall" "var_demo" {
+  name    = "raman-variables"
+  network = "default"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["443", "80", "53"]
+  }
+
+  source_ranges = [var.vpn_ip]
+}
+
+root@terraform-central-machine:~# cat variable.tf 
+variable "rktest" {
+  default = "116.50.30.70/32"
+}
+
+variable "type" {
+  default= "f1-micro"
+}
+
+variable "vpn_ip" {
+  default= "0.0.0.0/0"
+}
+
+
+--- on the fly :
+    
+    terraform plan -var="type=n1-standard-2"
+    
+    
+    ============================================
+    custom.tfvars
+
+
+
+
+
+variable "rktest" {
+  default = "116.50.30.70/32"
+}
+
+variable "type" {
+  default= "f1-micro"
+}
+
+variable "vpn_ip" {
+  default= "0.0.0.0/0"
+}
+
+
+===========================================================
+
+Different variable assignments :
+    
+    
+    
+     terraform plan -var="type=n1-standard-2"
+  283  clear
+  284  cat compute.tf 
+  285  cat variable.tf 
+  286  ls
+  287  vi prod.tfvars
+  288  ls
+  289  terraform plan -var-file="prod.tfvars"
+  290  vi variable.tf 
+  291  vi prod.tfvars 
+  292  terraform plan -var-file="prod.tfvars"
+  293  vi variable.tf 
+  294  vi prod.tfvars 
+  295  ls
+  296  vi compute.tf 
+  297  terraform plan -var-file="prod.tfvars"
+  298  clear
+  299  t plan
+  300  ls
+  301  ls
+  
+  
+  
+  
+  
+  root@terraform-central-machine:~# cat compute.tf 
+provider "google" {
+  project     = "techlanders-nov2024"
+  region      = "us-central1"
+#  version="5.44.0"
+  credentials= file("/root/raman.json")
+}
+
+
+resource "google_compute_instance" "mygcpserver" {
+  name         = var.nam
+  machine_type = var.type
+  zone         = "us-central1-a"
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP will be assigned
+    }
+  }
+  tags = ["my-gcp-instance"]
+}
+
+resource "google_compute_firewall" "var_demo" {
+  name    = "raman-variables"
+  network = "default"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["443", "80", "53"]
+  }
+
+  source_ranges = [var.vpn_ip]
+}
+
+root@terraform-central-machine:~# cat variable.tf 
+variable "rktest" {
+  default = "116.50.30.70/32"
+}
+
+variable "type" {
+  default= "f1-micro"
+}
+
+variable "vpn_ip" {
+  default= "0.0.0.0/0"
+}
+
+variable "nam" {
+  default="server"
+}
+root@terraform-central-machine:~# cat prod.tfvars 
+type="n1-standard-4"
+nam="prod-server"
+
+
+=============================================================================
+  
+  
+  
+  
+  
+  
+  
+  root@terraform-central-machine:~# cat compute.tf 
+provider "google" {
+  project     = "techlanders-nov2024"
+  region      = "us-central1"
+#  version="5.44.0"
+  credentials= file("/root/raman.json")
+}
+
+
+resource "google_compute_instance" "mygcpserver" {
+  name         = var.testrk[count.index]
+  count= 3
+  machine_type = var.type[count.index]
+  zone         = "us-central1-a"
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP will be assigned
+    }
+  }
+  tags = ["my-gcp-instance"]
+}
+
+resource "google_compute_firewall" "var_demo" {
+  name    = "raman-variables"
+  network = "default"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["443", "80", "53"]
+  }
+
+  source_ranges = [var.vpn_ip]
+}
+
+root@terraform-central-machine:~# ls
+compute.tf  ec2.tf  prod.tfvars  raman.json  terraform.tfstate  terraform.tfstate.backup  variable.tf
+root@terraform-central-machine:~# cat prod.tfvars 
+type="n1-standard-4"
+root@terraform-central-machine:~# cat variable.tf 
+variable "rktest" {
+  default = "116.50.30.70/32"
+}
+
+variable "type" {
+  type=list
+  default= ["f1-micro", "n1-standard-2"]
+}
+
+variable "vpn_ip" {
+  default= "0.0.0.0/0"
+}
+
+variable "access_key"{
+}
+variable "secret_key" {
+}
+
+variable "testrk" {
+  type    = list
+  default = ["dev-server", "stage-server", "prod-server"]
+}
+
+
+
+================================================================
+```
