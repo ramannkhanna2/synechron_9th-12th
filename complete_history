@@ -1,0 +1,1190 @@
+```
+
+Welcome to OpenDev Etherpad!
+
+
+my name is raman khanna
+
+
+
+--- create a vm i.e from where ill b controllong terraform
+
+
+installing terraform :
+    
+sudo -i
+
+
+
+
+
+--
+
+
+root@terraform-central-machine:~# terraform -v
+Terraform v1.10.1
+on linux_amd64
+
+=====================================================
+
+
+--- creating a service account ....
+
+      --- given a role to it : editor
+      
+      
+      -- after creating sa , create a json key ....
+      
+    
+      ======================================================
+      
+      
+      11  cd /root/
+   12  ls
+   13  ls
+   14  vi raman.json
+   15  ls
+   16  ls
+   17  cat file1.tf 
+   18  pwd
+   19  ls
+   20  ls
+   21  vi file1.tf 
+   22  clear
+   23  ls
+   24  ls
+   25  ls
+   26  vi file1.tf 
+   27  ls
+   28  ls
+   29  ls -a
+   30  t init
+   31  alias t=terraform
+   32  t init
+   33  ls
+   34  ls -a
+   35  cd .terraform
+   36  ls
+   37  cd providers/
+   38  ls
+   39  cd registry.terraform.io/
+   40  ls
+   41  cd hashicorp/
+   42  ls
+   43  cd google/
+   44  ls
+   45  cd 6.12.0/
+   46  ls
+   47  cd linux_amd64/
+   48  ls
+   49  ls
+   50  cd terraform-provider-google_v6.12.0_x5
+   51  ls
+   52  ls -ltr
+   53  clear
+   54  cd ~
+   55  ls
+   56  t validate
+   57  t plan
+   58  clear
+   59  t apply
+   60  t state list
+   61  ls
+   62  vi terraform.tfstate 
+   63  t plan
+   64  t apply
+   65  ls
+   66  t destroy
+   67  t state list
+   68  ls
+   69  cat terraform.tfstate
+   
+
+
+
+
+
+root@terraform-central-machine:~# cat file1.tf 
+provider "google" {
+  project     = "techlanders-nov2024"
+  region      = "us-central1"
+  credentials= file("/root/raman.json")
+}
+
+resource "google_compute_instance" "mygcpserver" {
+  name         = "raman-gcp-instance-test"
+  machine_type = "f1-micro"
+  zone         = "us-central1-a"
+  boot_disk {
+   initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP will be assigned
+    }
+  }
+  tags = ["my-gcp-instance"]
+}
+
+
+
+
+
+
+
+
+
+===================================================
+   
+   
+   
+   
+   root@terraform-central-machine:~# cat ec2.tf 
+provider "aws" {
+  region = "us-east-1" # Replace with your desired AWS region
+  access_key = ""
+  secret_key = ""
+}
+
+resource "aws_instance" "example" {
+  ami           = "ami-0e2c8caa4b6378d8c"
+  instance_type = "t2.micro"             # Free-tier eligible instance type
+
+  tags = {
+    Name = "my-ec2-instance"
+  }
+}
+
+
+============================================================
+
+
+root@terraform-central-machine:~# cat file.tf 
+provider "google" {
+  project     = "techlanders-nov2024"
+  region      = "us-central1"
+  version="5.44.0"
+  credentials= file("/root/raman.json")
+}
+
+resource "google_compute_instance" "mygcpserver" {
+  name         = "raman-gcp-instance-test"
+  machine_type = "f1-micro"
+  zone         = "us-central1-a"
+  boot_disk {
+   initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP will be assigned
+    }
+  }
+  tags = ["my-gcp-instance"]
+}
+
+
+
+
+=================================================================
+
+
+
+root@terraform-central-machine:~# cat file.tf 
+provider "google" {
+  project     = "techlanders-nov2024"
+  region      = "us-central1"
+#  version="5.44.0"
+  credentials= file("/root/raman.json")
+}
+
+resource "google_compute_instance" "rk" {
+  name         = "raman-gcp-instance-test"
+  machine_type = "f1-micro"
+  zone         = "us-central1-a"
+  boot_disk {
+   initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP will be assigned
+    }
+  }
+  tags = ["my-gcp-instance"]
+}
+
+
+output "mygcpserver-ip" {
+  value = google_compute_instance.rk.network_interface[0].access_config[0].nat_ip
+}
+
+output "mygcpserver-type" {
+  value = google_compute_instance.rk.machine_type
+}
+
+
+resource "google_storage_bucket" "mygcpbucket" {
+  name     = "my-gcp-bucket-ramnnnnnnn"
+  depends_on = [google_compute_instance.rk]
+  location = "us-central1"
+}
+
+output "mygcpbucket" {
+  value = google_storage_bucket.mygcpbucket.self_link
+}
+
+
+================================================================
+
+BELOW IS JUST FOR UNDERSTANDING : MODIFY IT TO GET IT WORK AS PER UR ARCHITECTURE :
+    
+    
+    Here’s an end-to-end example of using API Gateway to process an HTTP request and route it to a backend service. This example demonstrates:
+Defining an API Gateway.
+Configuring an HTTP API with a backend Lambda function.
+Triggering the Lambda function with an HTTP request via API Gateway.
+We'll use AWS API Gateway, AWS Lambda, and Python for the Lambda function.
+Step 1: Create an API Gateway
+Terraform Configuration for API Gateway:
+hcl
+Copy code
+provider "aws" {
+  region = "us-east-1"
+}
+
+# Create an API Gateway
+resource "aws_apigatewayv2_api" "example_api" {
+  name          = "example-api"
+  protocol_type = "HTTP"
+}
+
+# Create an API Gateway route
+resource "aws_apigatewayv2_route" "example_route" {
+  api_id    = aws_apigatewayv2_api.example_api.id
+  route_key = "GET /process"
+  target    = "integrations/${aws_apigatewayv2_integration.example_integration.id}"
+}
+Step 2: Create a Lambda Function
+Python Script for Lambda Function:
+python
+Copy code
+import json
+def lambda_handler(event, context):
+    # Extracting parameters from the API Gateway event
+    message = event.get("queryStringParameters", {}).get("message", "Hello, World!")
+    response = {
+        "statusCode": 200,
+        "body": json.dumps({"message": f"Processed: {message}"})
+    }
+    return response
+Terraform Configuration for Lambda:
+hcl
+Copy code
+resource "aws_lambda_function" "example_lambda" {
+  function_name = "example-lambda"
+  runtime       = "python3.9"
+  handler       = "lambda_function.lambda_handler"
+  role          = aws_iam_role.lambda_exec_role.arn
+
+  filename      = "example_lambda.zip" # Package the Python script as a zip
+  source_code_hash = filebase64sha256("example_lambda.zip")
+}
+
+# IAM Role for Lambda
+resource "aws_iam_role" "lambda_exec_role" {
+  name = "lambda-exec-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+# IAM Policy for Lambda to access logs
+resource "aws_iam_role_policy_attachment" "lambda_policy" {
+  role       = aws_iam_role.lambda_exec_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+Step 3: Connect Lambda to API Gateway
+Integration Configuration:
+hcl
+Copy code
+resource "aws_apigatewayv2_integration" "example_integration" {
+  api_id           = aws_apigatewayv2_api.example_api.id
+  integration_type = "AWS_PROXY"
+  integration_uri  = aws_lambda_function.example_lambda.invoke_arn
+}
+Grant API Gateway Permission to Invoke Lambda:
+hcl
+Copy code
+resource "aws_lambda_permission" "apigw_invoke" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.example_lambda.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.example_api.execution_arn}/*/*"
+}
+Step 4: Deploy API Gateway
+Stage Deployment:
+hcl
+Copy code
+resource "aws_apigatewayv2_stage" "example_stage" {
+  api_id      = aws_apigatewayv2_api.example_api.id
+  name        = "$default"
+  auto_deploy = true
+}
+Step 5: Trigger and Test
+Deploy and Apply Terraform:
+bash
+Copy code
+terraform init
+terraform apply
+Test the API Gateway:
+Obtain the API Gateway URL (output or console).
+Use curl or Postman to trigger the endpoint:
+bash
+Copy code
+curl "https://<api-gateway-id>.execute-api.us-east-1.amazonaws.com/process?message=Terraform"
+Response:
+json
+Copy code
+{
+  "message": "Processed: Terraform"}
+Architecture Overview
+API Gateway handles incoming HTTP requests.
+The Route maps GET /process to a Lambda function.
+The Lambda Function processes the request and sends a response.
+API Gateway sends the response back to the client.
+Let me know if you'd like additional details on deployment, security, or logging!
+
+4o
+
+
+ABOVE  IS JUST FOR UNDERSTANDING : MODIFY IT TO GET IT WORK AS PER UR ARCHITECTURE :
+
+================================================================================================
+
+
+
+Variables :
+    
+
+
+root@terraform-central-machine:~# cat variable.tf 
+variable "rktest" {
+  default = "116.50.30.70/32"
+}
+root@terraform-central-machine:~# cat ec2.tf 
+provider "aws" {
+  region = "us-east-1" # Replace with your desired AWS region
+  access_key = ""
+  secret_key = ""
+}
+
+resource "aws_security_group" "var_demo" {
+  name        = "raman-variables"
+  vpc_id      = "vpc-01948378f1e13345b"
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [var.rktest]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [var.rktest]
+  }
+
+  ingress {
+    from_port   = 53
+    to_port     = 53
+    protocol    = "tcp"
+    cidr_blocks = [var.rktest]
+  }
+}
+
+
+========================================================
+
+
+
+root@terraform-central-machine:~# cat compute.tf 
+provider "google" {
+  project     = "techlanders-nov2024"
+  region      = "us-central1"
+#  version="5.44.0"
+  credentials= file("/root/raman.json")
+}
+
+
+resource "google_compute_instance" "mygcpserver" {
+  name         = "techlanders-gcp-instance"
+  machine_type = var.type
+  zone         = "us-central1-a"
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP will be assigned
+    }
+  }
+  tags = ["my-gcp-instance"]
+}
+
+resource "google_compute_firewall" "var_demo" {
+  name    = "raman-variables"
+  network = "default"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["443", "80", "53"]
+  }
+
+  source_ranges = [var.vpn_ip]
+}
+
+root@terraform-central-machine:~# cat variable.tf 
+variable "rktest" {
+  default = "116.50.30.70/32"
+}
+
+variable "type" {
+  default= "f1-micro"
+}
+
+variable "vpn_ip" {
+  default= "0.0.0.0/0"
+}
+
+
+--- on the fly :
+    
+    terraform plan -var="type=n1-standard-2"
+    
+    
+    ============================================
+    custom.tfvars
+
+
+
+
+
+variable "rktest" {
+  default = "116.50.30.70/32"
+}
+
+variable "type" {
+  default= "f1-micro"
+}
+
+variable "vpn_ip" {
+  default= "0.0.0.0/0"
+}
+
+
+===========================================================
+
+Different variable assignments :
+    
+    
+    
+     terraform plan -var="type=n1-standard-2"
+  283  clear
+  284  cat compute.tf 
+  285  cat variable.tf 
+  286  ls
+  287  vi prod.tfvars
+  288  ls
+  289  terraform plan -var-file="prod.tfvars"
+  290  vi variable.tf 
+  291  vi prod.tfvars 
+  292  terraform plan -var-file="prod.tfvars"
+  293  vi variable.tf 
+  294  vi prod.tfvars 
+  295  ls
+  296  vi compute.tf 
+  297  terraform plan -var-file="prod.tfvars"
+  298  clear
+  299  t plan
+  300  ls
+  301  ls
+  
+  
+  
+  
+  
+  root@terraform-central-machine:~# cat compute.tf 
+provider "google" {
+  project     = "techlanders-nov2024"
+  region      = "us-central1"
+#  version="5.44.0"
+  credentials= file("/root/raman.json")
+}
+
+
+resource "google_compute_instance" "mygcpserver" {
+  name         = var.nam
+  machine_type = var.type
+  zone         = "us-central1-a"
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP will be assigned
+    }
+  }
+  tags = ["my-gcp-instance"]
+}
+
+resource "google_compute_firewall" "var_demo" {
+  name    = "raman-variables"
+  network = "default"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["443", "80", "53"]
+  }
+
+  source_ranges = [var.vpn_ip]
+}
+
+root@terraform-central-machine:~# cat variable.tf 
+variable "rktest" {
+  default = "116.50.30.70/32"
+}
+
+variable "type" {
+  default= "f1-micro"
+}
+
+variable "vpn_ip" {
+  default= "0.0.0.0/0"
+}
+
+variable "nam" {
+  default="server"
+}
+root@terraform-central-machine:~# cat prod.tfvars 
+type="n1-standard-4"
+nam="prod-server"
+
+
+=============================================================================
+  
+  
+  
+  
+  
+  
+  
+  root@terraform-central-machine:~# cat compute.tf 
+provider "google" {
+  project     = "techlanders-nov2024"
+  region      = "us-central1"
+#  version="5.44.0"
+  credentials= file("/root/raman.json")
+}
+
+
+resource "google_compute_instance" "mygcpserver" {
+  name         = var.testrk[count.index]
+  count= 3
+  machine_type = var.type[count.index]
+  zone         = "us-central1-a"
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP will be assigned
+    }
+  }
+  tags = ["my-gcp-instance"]
+}
+
+resource "google_compute_firewall" "var_demo" {
+  name    = "raman-variables"
+  network = "default"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["443", "80", "53"]
+  }
+
+  source_ranges = [var.vpn_ip]
+}
+
+root@terraform-central-machine:~# ls
+compute.tf  ec2.tf  prod.tfvars  raman.json  terraform.tfstate  terraform.tfstate.backup  variable.tf
+root@terraform-central-machine:~# cat prod.tfvars 
+type="n1-standard-4"
+root@terraform-central-machine:~# cat variable.tf 
+variable "rktest" {
+  default = "116.50.30.70/32"
+}
+
+variable "type" {
+  type=list
+  default= ["f1-micro", "n1-standard-2"]
+}
+
+variable "vpn_ip" {
+  default= "0.0.0.0/0"
+}
+
+variable "access_key"{
+}
+variable "secret_key" {
+}
+
+variable "testrk" {
+  type    = list
+  default = ["dev-server", "stage-server", "prod-server"]
+}
+
+
+
+================================================================
+
+ssh-keygen -t rsa
+
+
+
+root@terraform-central-machine:~/remote# cat remote.tf 
+provider "google" {
+  credentials = "/root/raman.json"
+  project     = "techlanders-nov2024"
+  region      = "europe-west4"
+  zone        = "europe-west4-a"
+}
+
+
+resource "google_compute_instance" "instance" {
+  name                      = "server1"
+  machine_type              = "e2-micro"
+  allow_stopping_for_update = true
+  depends_on                = [google_compute_network.vpc_network, google_compute_subnetwork.test-subnetwork, google_compute_firewall.firewall]
+  metadata = {
+    ssh-keys = "${var.user}:${file(var.publickeypath)}"
+  }
+  boot_disk {
+    initialize_params {
+      image = "debian-11-bullseye-v20230509"
+    }
+  }
+
+  # To keep the setup simple you can set the network_interface to default
+  # For Advance network setup refer to Point-7 : Setup Network and Firewall for virtual machine
+  network_interface {
+    network    = "raman-vpc-network"
+    subnetwork = "raman-vpc-subnetwork"
+    access_config {
+      // Ephemeral public IP
+    }
+  }
+
+provisioner "remote-exec" {
+    connection {
+      host        = google_compute_instance.instance.network_interface[0].access_config[0].nat_ip
+      type        = "ssh"
+      user        = var.user
+      timeout     = "500s"
+      private_key = file(var.privatekeypath)
+    }
+    inline = [
+      "sudo mkdir test",
+      "sudo apt-get update -y",
+      "sudo apt-get install nginx -y",
+      "sudo systemctl start nginx",
+      "sudo systemctl enable nginx"  # Optional: Enables NGINX to start at boot.    
+   ]
+  }
+
+}
+
+resource "google_compute_network" "vpc_network" {
+  name                    = "raman-vpc-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test-subnetwork" {
+  name          = "raman-vpc-subnetwork"
+  ip_cidr_range = "192.168.10.0/24"
+  region        = "europe-west4"
+  network       = google_compute_network.vpc_network.id
+}
+
+resource "google_compute_firewall" "firewall" {
+  name          = "raman-firewall"
+  network       = "raman-vpc-network"
+  source_ranges = ["0.0.0.0/0"]
+  allow {
+    protocol = "icmp"
+  }
+
+  dynamic "allow" {
+    for_each = var.port
+    iterator = firewall
+    content {
+      ports    = firewall.value[*]
+      protocol = "tcp"
+    }
+  }
+
+}
+
+
+variable "port" {
+  type    = list(any)
+  default = ["22", "8201", "443", "80", "9500"]
+}
+
+variable "user" {
+    type = string
+    default= "admin"
+}
+variable "privatekeypath" {
+    type = string
+    default = "~/.ssh/id_rsa"
+}
+variable "publickeypath" {
+    type = string
+    default = "~/.ssh/id_rsa.pub"
+}
+
+
+======================================================
+
+
+
+root@terraform-central-machine:~/dunctions# cat func.tf 
+# Provider Configuration
+provider "google" {
+  project     = "techlanders-nov2024"
+  alias= "test"
+  region      = var.region
+  credentials = file("raman.json")
+}
+
+
+variable "zone" {
+type=map
+default= {
+"us-central1"="us-central1-a"
+"us-east1"="us-east1-a"
+"asia-south1"="asia-south1-a"
+}
+}
+
+variable "region" {
+#  default = "us-central1"
+}
+
+variable "tags" {
+  type    = list
+  default = ["first-gcp-instance","second-gcp-instance"]
+}
+
+variable "image" {
+  type = map
+  default = {
+    "us-central1"     = "debian-12-bookworm-v20241112" 
+    "us-east1"     = "centos-stream-9-v20241112"
+    "asia-south1"  = "ubuntu-2004-focal-arm64-v20241115" 
+}
+}
+
+resource "google_compute_instance" "app-dev" {
+  provider=google.test
+  count         = 2
+  name          = element(var.tags,count.index)
+  machine_type  = "e2-medium"
+  zone= lookup(var.zone,var.region,"us-central1")
+  boot_disk {
+    initialize_params {
+      image = lookup(var.image, var.region, "debian-cloud/debian-10")
+    }
+  }
+network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP
+    }
+  }
+
+}
+
+output "timestamp" {
+  value = formatdate("DD MMM YYYY hh:mm ZZZ", timestamp())
+}
+
+
+===================================================================
+
+
+
+
+root@terraform-central-machine:~/dunctions# cat data.tf 
+# Provider Configuration
+provider "google" {
+  project     = "techlanders-nov2024"
+  region      = var.region
+  credentials = file("raman.json")
+}
+
+
+# Variable Definition
+variable "region" {
+  default = "europe-west4"
+}
+
+# Data Source 1: Retrieve VPC Network
+data "google_compute_network" "vpc_network" {
+  name = "raman-vpc-network" # Replace with your VPC name if needed
+}
+
+# Data Source 2: Retrieve Subnet
+data "google_compute_subnetwork" "vpc_subnet" {
+  name   = "raman-vpc-subnetwork" # Replace with your subnet name
+  region = var.region
+}
+
+# Data Source 3: Retrieve Latest Debian Image
+data "google_compute_image" "debian_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+# Data Source 4: Fetch All Available Zones in the Region
+data "google_compute_zones" "available_zones" {}
+
+# Data Source 5: Fetch existing Instance Information
+data "google_compute_instance" "appserver" {
+  name = "terraform-central-machine"
+  zone = "us-central1-c" # Make sure the correct zone is specified for the existing instance
+}
+
+
+# Resource: Compute Engine Instance
+resource "google_compute_instance" "vm_instance" {
+  name         = "multi-data-instance"
+  machine_type = data.google_compute_instance.appserver.machine_type
+  zone         = data.google_compute_zones.available_zones.names[0] # Select the first available zone dynamically
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.debian_image.self_link
+    }
+  }
+
+  network_interface {
+    network    = data.google_compute_network.vpc_network.self_link
+    subnetwork = data.google_compute_subnetwork.vpc_subnet.self_link
+    access_config {} # Assign a public IP
+  }
+
+  tags = ["web", "multi-data-source"]
+}
+
+# Output the Details
+output "instance_details" {
+  value = {
+    name        = google_compute_instance.vm_instance.name
+    public_ip   = google_compute_instance.vm_instance.network_interface[0].access_config[0].nat_ip
+    zone        = google_compute_instance.vm_instance.zone
+    subnet      = data.google_compute_subnetwork.vpc_subnet.self_link
+  }
+}
+
+output "datasource5details" {
+  value = data.google_compute_instance.appserver
+}
+
+
+
+============================================================
+
+
+
+root@terraform-central-machine:~/workspace# cat wspace.tf 
+# Provider Configuration
+provider "google" {
+  project     = "techlanders-nov2024"
+  region      = "us-central1"
+  credentials = file("raman.json")
+}
+
+
+resource "google_compute_instance" "mygce" {
+  name         = lookup(var.name, terraform.workspace)
+  machine_type = lookup(var.machine_type, terraform.workspace)
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+
+network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral public IP
+    }
+  }
+
+
+}
+
+variable "machine_type" {
+  type = map
+
+  default = {
+    default = "f1-micro"
+    dev     = "n1-standard-1"
+    prod    = "n1-standard-2"
+  }
+}
+
+variable "name" {
+  type = map
+
+  default = {
+    default = "my-gce-instance"
+    dev     = "dev-gce-instance"
+    prod    = "prod-gce-instance"
+  }
+}
+
+
+
+
+cat wspace.tf 
+  518  terraform workspace -h
+  519  terraform workspace new dev
+  520  terraform workspace new prod
+  521  terraform workspace show
+  522  terraform workspace -h
+  523  terraform workspace select dev
+  524  t plan
+  525  ls
+  526  vi wspace.tf 
+  527  t plan
+  528  cp ../raman.json .
+  529  clear
+  530  terraform workspace show
+  531  terraform workspace list
+  532  t plan
+  533  terraform workspace list
+  534  terraform workspace select prod
+  535  t plan
+  536  cat wspace.tf 
+  
+  
+  ================================================================
+
+
+devops pipeline :
+    
+    
+    tf , github , jenkins , ansible , gcp cloud ....
+    
+    jenkins deploymnt on our server
+    
+https://www.jenkins.io/download/
+
+
+
+github tf and ansible playbook code : fork it at ur end .....
+https://github.com/ramannkhanna2/Devops-terraform-ansible.git
+
+on the server :
+root@jenkins-tf-ansible:~# cat /var/lib/jenkins/secrets/initialAdminPassword
+
+
+
+setup of jenkins complete... on the dashboard jenkins
+
+-----------------------------------------------------------------------------------------------------------------
+
+
+---- to provide jenkins root previlegs :
+
+
+systemctl status jenkins
+
+vi /usr/lib/systemd/system/jenkins.service
+
+
+
+# Unix account that runs the Jenkins daemon
+# Be careful when you change this, as you need to update the permissions of
+# $JENKINS_HOME, $JENKINS_LOG, and (if you have already run Jenkins)
+# $JENKINS_WEBROOT.
+User=root
+Group=root
+
+
+
+systemctl daemon-reload
+
+systemctl restart jenkins
+
+-- confirm if it has the access now to make configuration changes on server
+
+---------------------------------------------
+
+started setting up the job on jenkins , authenticated our github repo..
+
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/service-account-key.json"
+terraform init
+terraform apply -auto-approve
+sleep 10
+ansible-playbook -i /tmp/inv -u admin -b --become-method sudo web.yaml
+
+
+installed terraform..
+
+
+ssh-keygen -t rsa
+
+--- ran the build ..
+
+--- ansible installation :
+    
+    https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html#installing-ansible-on-debian
+    
+    ---
+    
+    root@jenkins-tf-ansible:~# vi /etc/ansible/ansible.cfg 
+root@jenkins-tf-ansible:~# ansible-config init --disabled > /etc/ansible/ansible.cfg
+root@jenkins-tf-ansible:~# vi /etc/ansible/ansible.cfg 
+
+host_key_checking = False
+
+----
+
+
+==============================================================================
+
+
+LOCAL MODULES :
+
+
+LAB: Modules for GCP
+Create the directory structure:
+
+Create a directory modules and inside it a subdirectory gce (Google Compute Engine).
+Create a directory projects and inside it a subdirectory project-A.
+Create the source module gce.tf in modules/gce:
+
+
+resource "google_compute_instance" "s1" {
+  name         = "instance-1"
+  machine_type = "e2-micro"
+  zone         = "us-central1-a"
+  boot_disk {
+    initialize_params {
+      image = "debian-10-buster-v20211105"
+    }
+  }
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP
+    }
+  }
+}
+
+
+In projects/project-A, create the child module mygce.tf:
+Call the source module gce from mygce.tf.
+
+module "gcemodule" {
+  source = "../../modules/gce"
+}
+Terraform in projects/project-A:
+Run the following commands in the projects/project-A directory:
+bash
+Copy code
+terraform init
+terraform apply
+(If there's an error, you may need to provide the provider block in project-A folder, as shown below.)
+
+LAB: Using variables in GCP
+Modify the gce.tf file under /root/modules/gce to use variables:
+
+resource "google_compute_instance" "s1" {
+  name         = "instance-1"
+  machine_type = var.instancetype
+  zone         = "us-central1-a"
+  boot_disk {
+    initialize_params {
+      image = "debian-10-buster-v20211105"
+    }
+  }
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP
+    }
+  }
+}
+
+
+Create the variables.tf file in /root/modules/gce:
+
+variable "instancetype" {
+  default = "e2-micro"
+}
+Under /root/projects/project-A, create two env files for different instance types:
+
+mygce-dev.tf for the dev environment:
+
+module "gcemodule-dev" {
+  source       = "../../modules/gce"
+  instancetype = "e2-small"
+}
+
+mygce-prod.tf for the prod environment:
+
+module "gcemodule-prod" {
+  source = "../../modules/gce"
+}
+
+Run Terraform in the projects/project-A directory:
+
+terraform init
+terraform apply
+
+```
